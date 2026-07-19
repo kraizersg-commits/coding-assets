@@ -1,12 +1,12 @@
 /* BACKGROUND VIDEO FRAME ANCHORING ENGINE */
-.ambient-video-bg {
+#ambient-video {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
     object-fit: cover;
-    z-index: -100; /* Stays beneath all interface items */
+    z-index: -1; /* Stays beneath all interface items */
     pointer-events: none;
 }
 
