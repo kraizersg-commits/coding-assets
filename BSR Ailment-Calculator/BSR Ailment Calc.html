@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ailment DMG Bonus Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- BACKGROUND AMBIENT VIDEO ENGINE -->
+    <video autoplay muted loop playsinline class="ambient-video-bg">
+        <source src="background.mp4" type="video/mp4">
+    </video>
+
+    <!-- AUTOMATED MAIN SOUND SYSTEM RESOURCE -->
+    <audio id="bgMusicTrack" loop src="main-theme.mp3"></audio>
+
+    <div class="calculator-container">
+        <!-- Header Section with Interactive Audio Toggle Button -->
+        <div class="header-section">
+            <div class="title-audio-row">
+                <h1 class="title">✨ Ailment DMG Bonus Calculator</h1>
+                <button id="soundToggleButton" class="sound-toggle-btn" onclick="toggleMainMusic()">
+                    <span id="soundIconSymbol">🔊</span>
+                </button>
+            </div>
+            <p class="subtitle">Find the exact minimum rolls needed to guarantee 214.28% Ailment DMG Bonus.</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Left Column: CONFIGURATION -->
+            <div class="configuration-box">
+                <h2>CONFIGURATION</h2>
+                
+                <div class="input-group">
+                    <label>Passive Ailment DMG Bonus (%)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="passiveBonus" value="0" min="0" step="any" oninput="calculateStats()">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Weapon Stamp Ailment DMG Bonus (%)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="weaponStamp" value="0" min="0" step="any" oninput="calculateStats()">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Core Stamp Ailment DMG Bonus (%)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="coreStamp" value="0" min="0" step="any" oninput="calculateStats()">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Bond Set Ailment DMG Bonus (%)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="bondSet" value="0" min="0" step="any" oninput="calculateStats()">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Boundary Ailment DMG Bonus (%)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="boundaryBonus" value="0" min="0" step="any" oninput="calculateStats()">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+
+                <!-- Custom Orange/Gray Switch Toggle -->
+                <div class="feature-box">
+                    <label class="custom-switch">
+                        <input type="checkbox" id="stampToggle" onchange="calculateStats()">
+                        <span class="switch-slider"></span>
+                    </label>
+                    <div class="feature-text">
+                        <span class="feature-title">Ailment DMG Bonus Third Set-Stamp</span>
+                        <span class="feature-value">+80%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: RESULTS -->
+            <div class="results-box">
+                <h2>RESULTS</h2>
+                
+                <div class="results-grid">
+                    <div class="result-card">
+                        <span class="card-label">TOTAL BASE AILMENT DMG</span>
+                        <span class="card-value" id="totalBaseBonus">0.00%</span>
+                    </div>
+                    <div class="result-card">
+                        <span class="card-label">MISSING FOR 214.28%</span>
+                        <span class="card-value" id="missingBonus">214.28%</span>
+                    </div>
+                </div>
+
+                <!-- Minimum Rolls Display Box -->
+                <div class="rolls-required-box">
+                    <span class="rolls-label">MINIMUM ROLLS REQUIRED</span>
+                    <span class="rolls-value" id="minRollsValue">-</span>
+                </div>
+
+                <!-- Safe Distributions List -->
+                <div class="distribution-section">
+                    <div class="section-header safe-title">
+                        <span class="status-icon">✔</span> Safe Distributions (Guaranteed ≥ 214.28%)
+                    </div>
+                    <div id="safeDistributionsList" class="dist-list"></div>
+                </div>
+
+                <!-- Trap Distributions List -->
+                <div class="distribution-section">
+                    <div class="section-header trap-title">
+                        <span class="status-icon">⚠</span> Trap Distributions (Falls short)
+                    </div>
+                    <p class="section-subtitle">These combinations also total the minimum rolls, but won't reach 214.28%.</p>
+                    <div id="trapDistributionsList" class="dist-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADVANCED POPUP MODAL COMPONENT -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-body-content">
+                <div class="modal-top-row">
+                    DISTRIBUTION: <span id="modalDistString" class="modal-highlight">&nbsp;4 / 3 / 0</span>
+                </div>
+                
+                <div class="modal-breakdown">
+                    <div class="breakdown-row"><span>Base:</span><span id="mBase">0.00%</span></div>
+                    <div class="breakdown-row"><span>Passive Bonus:</span><span id="mPassive">+ 0.00%</span></div>
+                    <div class="breakdown-row"><span>Weapon Stamp:</span><span id="mWeapon">+ 0.00%</span></div>
+                    <div class="breakdown-row"><span>Core Stamp:</span><span id="mCore">+ 0.00%</span></div>
+                    <div class="breakdown-row"><span>Bond Set:</span><span id="mBond">+ 0.00%</span></div>
+                    <div class="breakdown-row"><span>Boundary:</span><span id="mBoundary">+ 0.00%</span></div>
+                    <div class="breakdown-row"><span>Third Set-Stamp:</span><span id="mStamp">+ 0.00%</span></div>
+                    <div class="breakdown-row total-row"><span>Total Base Ailment:</span><span id="mTotalBase">0.00%</span></div>
+                </div>
+
+                <div class="modal-stamps-section">
+                    <div class="breakdown-row stamp-row"><span>Stamp 1 (<span id="mS1Rolls">4</span> rolls):</span><span id="mS1Value">+ 0.00%</span></div>
+                    <div class="breakdown-row stamp-row"><span>Stamp 2 (<span id="mS2Rolls">3</span> rolls):</span><span id="mS2Value">+ 0.00%</span></div>
+                    <div class="breakdown-row stamp-row"><span>Stamp 3 (<span id="mS3Rolls">0</span> rolls):</span><span id="mS3Value">+ 0.00%</span></div>
+                    <p class="modal-disclaimer">* Roll order across stamps doesn't matter as long as these numbers are present.</p>
+                </div>
+
+                <div class="modal-final-row">
+                    <span>FINAL RESULT:</span>
+                    <span id="modalFinalResult" class="final-val-glow">0.00%</span>
+                </div>
+
+                <div class="modal-footer-notes">
+                    <p>"Using hidden game decimals"</p>
+                    <p>Each roll increments Ailment DMG Bonus by 9.60%</p>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="modal-close-btn" onclick="closeModal()">CLOSE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
